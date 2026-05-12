@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 from datetime import datetime
+import pyperclip  # Pour copier dans le presse-papier
 
 # Configuration de la page
 st.set_page_config(
@@ -9,9 +10,24 @@ st.set_page_config(
     layout="centered"
 )
 
-# Titre
+# ========== 1. DATE ET HEURE ==========
+aujourdhui = datetime.now()
+date_formatee = aujourdhui.strftime("%A %d %B %Y")
+heure = aujourdhui.hour
+
+# Déterminer le moment de la journée pour le message de bienvenue
+if heure < 12:
+    moment = "matin ☀️"
+elif heure < 18:
+    moment = "après-midi 🌤️"
+else:
+    moment = "soir 🌙"
+
+# Titre avec la date
 st.title("✨ Pensée Positive ✨")
-st.caption("Une dose de bonheur chaque jour")
+st.caption(f"📅 {date_formatee}")
+
+# ========== 2. MESSAGE DE BIENVENUE PERSONNALISÉ ==========
 
 # Sélecteur de personnage
 personne = st.radio(
@@ -20,14 +36,16 @@ personne = st.radio(
     horizontal=True
 )
 
+nom = "Coco" if "Coco" in personne else "Steven"
+
+# Message de bienvenue personnalisé selon le moment de la journée
+st.info(f"🌟 Bonjour {nom} ! Nous sommes en ce {moment}. Prêt·e à recevoir une dose de positif ?", icon="💫")
+
 # Sélecteur de catégorie
 categorie = st.selectbox(
     "Choisis une catégorie :",
     ["💪 Motivation", "😌 Calme", "❤️ Amour", "🌟 Confiance", "🎉 Joie"]
 )
-
-# Nettoyer le nom pour l'affichage
-nom = "Coco" if "Coco" in personne else "Steven"
 
 # ========== MESSAGES PAR CATÉGORIE ==========
 
@@ -99,16 +117,34 @@ else:  # Joie
     emoji_categorie = "🎉"
 
 # Emoji selon le personnage
-emoji_personnage = "🌸" if nom == "Coco" else "🌟"
+emoji_personnage = "🌸" if nom == "Coco" else "🦊"
 
-# Bouton
-if st.button("✨ Recevoir une pensée ✨", type="primary", use_container_width=True):
-    message = random.choice(messages)
-    st.success(f"{emoji_personnage} **{nom}** dit : {message}\n\n{emoji_categorie} *Catégorie : {categorie}*")
-    
-    # Afficher l'heure
-    maintenant = datetime.now().strftime("%H:%M:%S")
-    st.caption(f"Message délivré à {maintenant}")
+# Variable pour stocker le message actuel (pour le bouton partager)
+if 'dernier_message' not in st.session_state:
+    st.session_state.dernier_message = ""
+
+# Bouton principal
+col1, col2 = st.columns([4, 1])
+
+with col1:
+    if st.button("✨ Recevoir une pensée ✨", type="primary", use_container_width=True):
+        message = random.choice(messages)
+        st.session_state.dernier_message = f"{emoji_personnage} **{nom}** dit : {message}\n\n{emoji_categorie} *Catégorie : {categorie}*"
+        
+        # Afficher l'heure
+        maintenant = datetime.now().strftime("%H:%M:%S")
+        
+        st.success(st.session_state.dernier_message)
+        st.caption(f"📨 Message délivré à {maintenant}")
+
+# ========== 3. BOUTON PARTAGER ==========
+if st.session_state.dernier_message:
+    with col2:
+        if st.button("📋 Copier", help="Copier le message dans le presse-papier"):
+            # Nettoyer le message pour enlever les balises markdown
+            message_a_copier = st.session_state.dernier_message.replace("**", "").replace("*", "")
+            pyperclip.copy(message_a_copier)
+            st.toast("✅ Message copié ! Tu peux le partager avec un ami 💌", icon="🎉")
 
 # Petit footer
 st.divider()
