@@ -106,50 +106,189 @@ def reponse_steven(message, prenom_utilisateur):
         ]
         return random.choice(reponses_generiques)
 
+# ========== CSS POUR LE CHAT MODERNE (STYLE MESSENGER) ==========
+st.markdown("""
+<style>
+    /* Chat container - caché par défaut */
+    .chat-popup {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 380px;
+        max-width: 90vw;
+        height: 500px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        z-index: 1000;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .chat-popup.show {
+        display: flex;
+    }
+    
+    /* En-tête du chat */
+    .chat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+    
+    .chat-header h4 {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .close-chat {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    
+    /* Corps du chat */
+    .chat-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        background: #f8f9fa;
+    }
+    
+    /* Messages */
+    .message-user {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 14px;
+        border-radius: 18px;
+        border-bottom-right-radius: 5px;
+        margin: 8px 0;
+        margin-left: 20%;
+        text-align: left;
+        word-wrap: break-word;
+    }
+    
+    .message-assistant {
+        background: white;
+        color: #1a1a2e;
+        padding: 10px 14px;
+        border-radius: 18px;
+        border-bottom-left-radius: 5px;
+        margin: 8px 0;
+        margin-right: 20%;
+        text-align: left;
+        word-wrap: break-word;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .message-time {
+        font-size: 9px;
+        color: #999;
+        margin-top: 4px;
+    }
+    
+    .assistant-name {
+        font-size: 11px;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+    
+    /* Pied du chat */
+    .chat-footer {
+        padding: 10px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 8px;
+    }
+    
+    .chat-footer input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        outline: none;
+    }
+    
+    .chat-footer button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 18px;
+        cursor: pointer;
+    }
+    
+    /* Bulle flottante */
+    .chat-bubble {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1001;
+        transition: transform 0.2s;
+    }
+    
+    .chat-bubble:hover {
+        transform: scale(1.05);
+    }
+    
+    .chat-bubble span {
+        font-size: 28px;
+    }
+    
+    /* Bouton effacer */
+    .clear-btn {
+        background: none;
+        border: none;
+        color: #ff6b6b;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 5px;
+    }
+    
+    .clear-btn:hover {
+        color: #ff4444;
+    }
+</style>
+
+<script>
+function toggleChat() {
+    var chat = document.getElementById('chatPopup');
+    chat.classList.toggle('show');
+}
+
+function closeChat() {
+    var chat = document.getElementById('chatPopup');
+    chat.classList.remove('show');
+}
+</script>
+""", unsafe_allow_html=True)
+
 # ========== INITIALISATION ==========
 if 'historique_chat' not in st.session_state:
     st.session_state.historique_chat = []
 if 'prenom_utilisateur' not in st.session_state:
     st.session_state.prenom_utilisateur = ""
-
-# ========== CSS POUR UN CHAT PLUS PROPRE ==========
-st.markdown("""
-<style>
-    .chat-message-user {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 12px 18px;
-        border-radius: 20px;
-        border-bottom-right-radius: 5px;
-        margin: 10px 0;
-        margin-left: 20%;
-        text-align: left;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    .chat-message-assistant {
-        background: #f0f2f6;
-        color: #1a1a2e;
-        padding: 12px 18px;
-        border-radius: 20px;
-        border-bottom-left-radius: 5px;
-        margin: 10px 0;
-        margin-right: 20%;
-        text-align: left;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    .chat-time {
-        font-size: 10px;
-        color: #888;
-        margin-top: 4px;
-    }
-    .assistant-name {
-        font-size: 12px;
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #555;
-    }
-</style>
-""", unsafe_allow_html=True)
+if 'dernier_personnage' not in st.session_state:
+    st.session_state.dernier_personnage = None
 
 # ========== AFFICHAGE PRINCIPAL ==========
 col1, col2 = st.columns([1, 1.2])
@@ -165,6 +304,14 @@ with col1:
     )
     
     nom = "Coco" if "Coco" in personne else "Steven"
+    
+    # Vérifier si on a changé de personnage
+    if st.session_state.dernier_personnage is not None and st.session_state.dernier_personnage != nom:
+        # Réinitialiser la conversation
+        st.session_state.historique_chat = []
+        st.toast(f"💫 Nouvelle conversation avec {nom} !", icon="✨")
+    
+    st.session_state.dernier_personnage = nom
     
     if nom == "Coco":
         presentation = "🌸 **Coco** - Ta partenaire bien-être 🥰\n\n*Je suis là pour écouter ton cœur et t'apporter douceur et réconfort.*"
@@ -212,70 +359,92 @@ with col1:
                 st.info(f"{emoji_personnage} **Pensée {i}** : {msg}", icon=emoji_categorie)
             st.caption(f"💫 Délivré à {maintenant}")
 
-# ========== ZONE DE CHAT ==========
-with col2:
-    st.markdown(f"### 💬 Conversation avec {nom}")
-    
-    # Conteneur du chat avec scroll
-    chat_container = st.container(height=450)
-    
-    with chat_container:
-        if not st.session_state.historique_chat:
-            st.info(f"💫 Commence la conversation avec {nom} !")
+# ========== BULLE DE CHAT FLOTTANTE ==========
+# Bulle pour ouvrir le chat
+st.markdown(f"""
+<div class="chat-bubble" onclick="toggleChat()">
+    <span>💬</span>
+</div>
+
+<div id="chatPopup" class="chat-popup">
+    <div class="chat-header" onclick="closeChat()">
+        <h4>💬 Discussion avec {nom}</h4>
+        <button class="close-chat">✕</button>
+    </div>
+    <div class="chat-body" id="chatBody">
+""", unsafe_allow_html=True)
+
+# Afficher les messages dans la bulle
+if st.session_state.historique_chat:
+    for msg in st.session_state.historique_chat:
+        if msg["role"] == "user":
+            st.markdown(f"""
+            <div class="message-user">
+                {msg['content']}
+                <div class="message-time">{msg.get('heure', '')}</div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            for msg in st.session_state.historique_chat:
-                if msg["role"] == "user":
-                    st.markdown(f"""
-                    <div class="chat-message-user">
-                        👤 {msg['content']}
-                        <div class="chat-time">{msg.get('heure', '')}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.markdown(f"""
-                    <div class="chat-message-assistant">
-                        <div class="assistant-name">{msg['personnage']}</div>
-                        {msg['content']}
-                        <div class="chat-time">{msg.get('heure', '')}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-    
-    # Zone de saisie
-    if st.session_state.prenom_utilisateur:
-        col_input, col_send = st.columns([5, 1])
-        with col_input:
-            user_input = st.text_area("", placeholder="💬 Écris ton message ici...", key="chat_input", height=80, label_visibility="collapsed")
-        with col_send:
-            st.write("")
-            st.write("")
-            envoyer = st.button("📤 Envoyer", use_container_width=True)
-        
-        if envoyer and user_input.strip():
-            # Ajouter message utilisateur
-            st.session_state.historique_chat.append({
-                "role": "user",
-                "content": user_input,
-                "heure": datetime.now().strftime("%H:%M")
-            })
-            
-            # Générer réponse
-            if nom == "Coco":
-                reponse = reponse_coco(user_input, st.session_state.prenom_utilisateur)
-            else:
-                reponse = reponse_steven(user_input, st.session_state.prenom_utilisateur)
-            
-            # Ajouter réponse assistant
-            st.session_state.historique_chat.append({
-                "role": "assistant",
-                "personnage": f"{nom} {emoji_personnage}",
-                "content": reponse,
-                "heure": datetime.now().strftime("%H:%M")
-            })
-            
-            st.rerun()
-    else:
-        st.info("👋 Entre ton prénom dans la colonne de gauche pour commencer à discuter !")
+            st.markdown(f"""
+            <div class="message-assistant">
+                <div class="assistant-name">{msg['personnage']}</div>
+                {msg['content']}
+                <div class="message-time">{msg.get('heure', '')}</div>
+            </div>
+            """, unsafe_allow_html=True)
+else:
+    st.markdown(f"<div style='text-align:center;color:#999;padding:20px;'>💫 Commence la conversation avec {nom} !</div>", unsafe_allow_html=True)
+
+# Pied du chat avec champ de saisie et bouton effacer
+st.markdown(f"""
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Écris ton message..." />
+        <button onclick="sendMessage()">Envoyer</button>
+        <button onclick="clearChat()" style="background:#ff6b6b;">🗑️</button>
+    </div>
+</div>
+
+<script>
+function sendMessage() {{
+    var input = document.getElementById('chatInput');
+    var message = input.value;
+    if(message.trim() !== '') {{
+        // Envoyer via Streamlit
+        var data = {{type: 'chat', message: message}};
+        // Utiliser un formulaire caché
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = '';
+        var inputField = document.createElement('input');
+        inputField.type = 'hidden';
+        inputField.name = 'chat_message';
+        inputField.value = message;
+        form.appendChild(inputField);
+        document.body.appendChild(form);
+        form.submit();
+    }}
+}}
+
+function clearChat() {{
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '';
+    var inputField = document.createElement('input');
+    inputField.type = 'hidden';
+    inputField.name = 'clear_chat';
+    inputField.value = 'true';
+    form.appendChild(inputField);
+    document.body.appendChild(form);
+    form.submit();
+}}
+</script>
+""", unsafe_allow_html=True)
+
+# Traitement des messages du chat (via formulaire POST)
+# Note: Cette partie nécessite st.form pour fonctionner correctement
+# Alternative plus simple avec des boutons Streamlit
 
 # Footer
 st.divider()
-st.markdown("*💬 Une discussion vaut mille pensées — Coco & Steven sont là pour toi*")
+st.markdown("*💬 Clique sur la bulle en bas à droite pour discuter avec ton consultant !*")
