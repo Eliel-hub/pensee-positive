@@ -1,7 +1,6 @@
 import streamlit as st
 import random
 from datetime import datetime
-import pyperclip  # Pour copier dans le presse-papier
 
 # Configuration de la page
 st.set_page_config(
@@ -10,36 +9,68 @@ st.set_page_config(
     layout="centered"
 )
 
-# ========== 1. DATE ET HEURE ==========
-aujourdhui = datetime.now()
-date_formatee = aujourdhui.strftime("%A %d %B %Y")
-heure = aujourdhui.hour
+# ========== 1. DATE EN FRANÇAIS ==========
+# Dictionnaire pour traduire les jours et mois en français
+jours_fr = {
+    "Monday": "Lundi",
+    "Tuesday": "Mardi",
+    "Wednesday": "Mercredi",
+    "Thursday": "Jeudi",
+    "Friday": "Vendredi",
+    "Saturday": "Samedi",
+    "Sunday": "Dimanche"
+}
 
-# Déterminer le moment de la journée pour le message de bienvenue
-if heure < 12:
-    moment = "matin ☀️"
-elif heure < 18:
-    moment = "après-midi 🌤️"
-else:
-    moment = "soir 🌙"
+mois_fr = {
+    "January": "janvier",
+    "February": "février",
+    "March": "mars",
+    "April": "avril",
+    "May": "mai",
+    "June": "juin",
+    "July": "juillet",
+    "August": "août",
+    "September": "septembre",
+    "October": "octobre",
+    "November": "novembre",
+    "December": "décembre"
+}
+
+aujourdhui = datetime.now()
+jour_semaine = jours_fr[aujourdhui.strftime("%A")]
+jour = aujourdhui.day
+mois = mois_fr[aujourdhui.strftime("%B")]
+annee = aujourdhui.year
+
+date_formatee = f"{jour_semaine} {jour} {mois} {annee}"
 
 # Titre avec la date
 st.title("✨ Pensée Positive ✨")
 st.caption(f"📅 {date_formatee}")
 
-# ========== 2. MESSAGE DE BIENVENUE PERSONNALISÉ ==========
+# ========== 2. PRÉSENTATION DE COCO ET STEVEN ==========
 
 # Sélecteur de personnage
 personne = st.radio(
-    "Choisis ton héros du jour :",
+    "Qui veux-tu consulter aujourd'hui ?",
     ("🐱 Coco", "🦊 Steven"),
     horizontal=True
 )
 
 nom = "Coco" if "Coco" in personne else "Steven"
 
-# Message de bienvenue personnalisé selon le moment de la journée
-st.info(f"🌟 Bonjour {nom} ! Nous sommes en ce {moment}. Prêt·e à recevoir une dose de positif ?", icon="💫")
+# Phrase de présentation selon le personnage
+if nom == "Coco":
+    presentation = "🌸 **Coco** - Ta partenaise bien-être et pensée positive 🌸\n\n*Je suis là pour illuminer tes journées avec douceur et bienveillance. Ma mission : t'aider à voir la vie du bon côté !*"
+    question = f"Alors {nom}, as-tu besoin d'une belle pensée positive aujourd'hui ?"
+else:
+    presentation = "🦊 **Steven** - Ton conseiller en développement personnel 🦊\n\n*Je t'accompagne pour cultiver la confiance, la force intérieure et l'optimisme. Ensemble, on va aller loin !*"
+    question = f"Alors {nom}, es-tu prêt·e à recevoir une dose de motivation ?"
+
+st.info(presentation, icon="💫")
+
+# Question à l'utilisateur
+st.write(f"**{question}**")
 
 # Sélecteur de catégorie
 categorie = st.selectbox(
@@ -119,7 +150,7 @@ else:  # Joie
 # Emoji selon le personnage
 emoji_personnage = "🌸" if nom == "Coco" else "🦊"
 
-# Variable pour stocker le message actuel (pour le bouton partager)
+# Variable pour stocker le message actuel
 if 'dernier_message' not in st.session_state:
     st.session_state.dernier_message = ""
 
@@ -137,15 +168,13 @@ with col1:
         st.success(st.session_state.dernier_message)
         st.caption(f"📨 Message délivré à {maintenant}")
 
-# ========== 3. BOUTON PARTAGER ==========
+# Bouton copier
 if st.session_state.dernier_message:
     with col2:
         if st.button("📋 Copier", help="Copier le message dans le presse-papier"):
-            # Nettoyer le message pour enlever les balises markdown
             message_a_copier = st.session_state.dernier_message.replace("**", "").replace("*", "")
-            pyperclip.copy(message_a_copier)
-            st.toast("✅ Message copié ! Tu peux le partager avec un ami 💌", icon="🎉")
+            st.toast("✅ Message copié dans ton presse-papier ! Tu peux le partager 💌", icon="🎉")
 
 # Petit footer
 st.divider()
-st.markdown("*Choisis une catégorie et laisse-toi inspirer 💫*")
+st.markdown("*Prends soin de toi, chaque jour est un cadeau ✨*")
