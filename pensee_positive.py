@@ -9,31 +9,18 @@ st.set_page_config(
     layout="centered"
 )
 
-# ========== 1. DATE EN FRANÇAIS ==========
-# Dictionnaire pour traduire les jours et mois en français
+# ========== DATE EN FRANÇAIS ==========
 jours_fr = {
-    "Monday": "Lundi",
-    "Tuesday": "Mardi",
-    "Wednesday": "Mercredi",
-    "Thursday": "Jeudi",
-    "Friday": "Vendredi",
-    "Saturday": "Samedi",
+    "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi",
+    "Thursday": "Jeudi", "Friday": "Vendredi", "Saturday": "Samedi",
     "Sunday": "Dimanche"
 }
 
 mois_fr = {
-    "January": "janvier",
-    "February": "février",
-    "March": "mars",
-    "April": "avril",
-    "May": "mai",
-    "June": "juin",
-    "July": "juillet",
-    "August": "août",
-    "September": "septembre",
-    "October": "octobre",
-    "November": "novembre",
-    "December": "décembre"
+    "January": "janvier", "February": "février", "March": "mars",
+    "April": "avril", "May": "mai", "June": "juin",
+    "July": "juillet", "August": "août", "September": "septembre",
+    "October": "octobre", "November": "novembre", "December": "décembre"
 }
 
 aujourdhui = datetime.now()
@@ -48,9 +35,8 @@ date_formatee = f"{jour_semaine} {jour} {mois} {annee}"
 st.title("✨ Pensée Positive ✨")
 st.caption(f"📅 {date_formatee}")
 
-# ========== 2. PRÉSENTATION DE COCO ET STEVEN ==========
+# ========== PRÉSENTATION DE COCO ET STEVEN ==========
 
-# Sélecteur de personnage
 personne = st.radio(
     "Qui veux-tu consulter aujourd'hui ?",
     ("🐱 Coco", "🦊 Steven"),
@@ -59,23 +45,31 @@ personne = st.radio(
 
 nom = "Coco" if "Coco" in personne else "Steven"
 
-# Phrase de présentation selon le personnage
+# Phrase de présentation
 if nom == "Coco":
-    presentation = "🌸 **Coco** - Ta partenaise bien-être et pensée positive 🌸\n\n*Je suis là pour illuminer tes journées avec douceur et bienveillance. Ma mission : t'aider à voir la vie du bon côté !*"
-    question = f"Alors {nom}, as-tu besoin d'une belle pensée positive aujourd'hui ?"
+    presentation = "🌸 **Coco** - Ta partenaire bien-être et pensée positive 🌸\n\n*Je suis là pour illuminer tes journées avec douceur et bienveillance. Ma mission : t'aider à voir la vie du bon côté !*"
+    question = f"Alors {nom}, as-tu besoin de belles pensées positives aujourd'hui ?"
 else:
     presentation = "🦊 **Steven** - Ton conseiller en développement personnel 🦊\n\n*Je t'accompagne pour cultiver la confiance, la force intérieure et l'optimisme. Ensemble, on va aller loin !*"
     question = f"Alors {nom}, es-tu prêt·e à recevoir une dose de motivation ?"
 
 st.info(presentation, icon="💫")
-
-# Question à l'utilisateur
 st.write(f"**{question}**")
 
 # Sélecteur de catégorie
 categorie = st.selectbox(
     "Choisis une catégorie :",
     ["💪 Motivation", "😌 Calme", "❤️ Amour", "🌟 Confiance", "🎉 Joie"]
+)
+
+# ========== NOUVEAU : CURSEUR POUR LE NOMBRE DE MESSAGES ==========
+nombre_messages = st.slider(
+    "Combien de pensées veux-tu recevoir ?",
+    min_value=1,
+    max_value=5,
+    value=1,
+    step=1,
+    help="Choisis entre 1 et 5 pensées positives"
 )
 
 # ========== MESSAGES PAR CATÉGORIE ==========
@@ -143,37 +137,48 @@ elif "Amour" in categorie:
 elif "Confiance" in categorie:
     messages = messages_confiance
     emoji_categorie = "🌟"
-else:  # Joie
+else:
     messages = messages_joie
     emoji_categorie = "🎉"
 
-# Emoji selon le personnage
 emoji_personnage = "🌸" if nom == "Coco" else "🦊"
 
-# Variable pour stocker le message actuel
+# Variable pour stocker les messages
 if 'dernier_message' not in st.session_state:
     st.session_state.dernier_message = ""
+if 'derniers_messages' not in st.session_state:
+    st.session_state.derniers_messages = []
 
 # Bouton principal
 col1, col2 = st.columns([4, 1])
 
 with col1:
-    if st.button("✨ Recevoir une pensée ✨", type="primary", use_container_width=True):
-        message = random.choice(messages)
-        st.session_state.dernier_message = f"{emoji_personnage} **{nom}** dit : {message}\n\n{emoji_categorie} *Catégorie : {categorie}*"
+    if st.button("✨ Recevoir mes pensées ✨", type="primary", use_container_width=True):
+        # Générer plusieurs messages sans répétition
+        messages_choisis = random.sample(messages, min(nombre_messages, len(messages)))
+        st.session_state.derniers_messages = messages_choisis
         
-        # Afficher l'heure
         maintenant = datetime.now().strftime("%H:%M:%S")
         
-        st.success(st.session_state.dernier_message)
-        st.caption(f"📨 Message délivré à {maintenant}")
+        # Afficher tous les messages
+        st.success(f"📨 {nom} t'a préparé {len(messages_choisis)} pensée(s) positive(s) !", icon="✨")
+        
+        for i, msg in enumerate(messages_choisis, 1):
+            st.info(f"{emoji_personnage} **Pensée {i}** : {msg}", icon=emoji_categorie)
+        
+        st.caption(f"💫 Délivré à {maintenant}")
+        
+        # Préparer le texte pour le copier
+        texte_a_copier = f"✨ Pensées positives de {nom} ✨\n\n"
+        for i, msg in enumerate(messages_choisis, 1):
+            texte_a_copier += f"{i}. {msg}\n"
+        st.session_state.dernier_message = texte_a_copier
 
 # Bouton copier
 if st.session_state.dernier_message:
     with col2:
-        if st.button("📋 Copier", help="Copier le message dans le presse-papier"):
-            message_a_copier = st.session_state.dernier_message.replace("**", "").replace("*", "")
-            st.toast("✅ Message copié dans ton presse-papier ! Tu peux le partager 💌", icon="🎉")
+        if st.button("📋 Copier tout", help="Copier toutes les pensées dans le presse-papier"):
+            st.toast("✅ Toutes les pensées ont été copiées ! 💌", icon="🎉")
 
 # Petit footer
 st.divider()
