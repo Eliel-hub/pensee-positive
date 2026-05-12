@@ -6,7 +6,7 @@ from datetime import datetime
 st.set_page_config(
     page_title="Pensée Positive",
     page_icon="✨",
-    layout="centered"
+    layout="wide"
 )
 
 # ========== DATE EN FRANÇAIS ==========
@@ -31,155 +31,200 @@ annee = aujourdhui.year
 
 date_formatee = f"{jour_semaine} {jour} {mois} {annee}"
 
-# Titre avec la date
-st.title("✨ Pensée Positive ✨")
-st.caption(f"📅 {date_formatee}")
+# ========== FONCTIONS DE RÉPONSE POUR LE CHAT ==========
+def reponse_coco(message, prenom_utilisateur):
+    message = message.lower()
+    
+    # Mots-clés et réponses de Coco (douce, bienveillante)
+    if any(word in message for word in ["triste", "déprime", "ça va pas", "mal", "pleure"]):
+        return f"🌸 Oh {prenom_utilisateur}, je suis désolée que tu te sentes comme ça. Je suis là pour toi. N'oublie pas que les moments difficiles passent toujours. Veux-tu qu'on trouve ensemble quelque chose qui pourrait te réconforter ? 💝"
+    
+    elif any(word in message for word in ["stress", "angoiss", "peur", "inquiet"]):
+        return f"🌸 Je comprends que le stress puisse être pesant, {prenom_utilisateur}. Prends une grande respiration avec moi. Inspire... expire... Tu n'es pas seul·e face à ça. Qu'est-ce qui te stresse particulièrement ? 🫶"
+    
+    elif any(word in message for word in ["fatigu", "épuis", "plus d'énergie"]):
+        return f"🌸 Repose-toi, {prenom_utilisateur}. Tu as le droit de faire une pause. Ton corps et ton esprit ont besoin de douceur. Bois de l'eau, prends l'air quelques minutes. Je veille sur toi 💆‍♀️💤"
+    
+    elif any(word in message for word in ["amour", "cœur", "sentiment", "aimer"]):
+        return f"🌸 L'amour est la plus belle des énergies, {prenom_utilisateur}. Tu mérites d'aimer et d'être aimé·e. N'aie pas peur d'ouvrir ton cœur, la vie te réserve de belles rencontres ❤️🌹"
+    
+    elif any(word in message for word in ["travail", "boulot", "job", "colleg", "patron"]):
+        return f"🌸 Le travail ne définit pas ta valeur, {prenom_utilisateur}. Tu fais de ton mieux et c'est déjà énorme. Fais-toi confiance et n'oublie pas de prendre du temps pour toi 💪💼"
+    
+    elif any(word in message for word in ["merci", "gentil", "sympa"]):
+        return f"🌸 Avec plaisir, {prenom_utilisateur} ! C'est tout naturel pour moi. Tu mérites tout le bonheur du monde. Reviens me voir quand tu veux 🌟💖"
+    
+    elif any(word in message for word in ["bonjour", "salut", "coucou", "hello"]):
+        reponses_salut = [
+            f"🌸 Coucou {prenom_utilisateur} ! Quelle joie de te voir aujourd'hui ! ☀️",
+            f"🌸 Bonjour mon doux/ma douce {prenom_utilisateur} ! Comment vas-tu ? 💕",
+            f"🌸 Hé {prenom_utilisateur} ! Je suis contente que tu sois là ✨"
+        ]
+        return random.choice(reponses_salut)
+    
+    else:
+        reponses_generiques = [
+            f"🌸 Je t'écoute, {prenom_utilisateur}. Parle-moi de ce qui te traverse l'esprit 💫",
+            f"🌸 Merci de te confier à moi, {prenom_utilisateur}. Je suis là pour toi, toujours 🫂",
+            f"🌸 Continue, {prenom_utilisateur}. Je suis tout·e ouïe 📖💖"
+        ]
+        return random.choice(reponses_generiques)
 
-# ========== PRÉSENTATION DE COCO ET STEVEN ==========
+def reponse_steven(message, prenom_utilisateur):
+    message = message.lower()
+    
+    # Mots-clés et réponses de Steven (motivant, énergique)
+    if any(word in message for word in ["triste", "déprime", "ça va pas", "mal", "pleure"]):
+        return f"🦊 Hé {prenom_utilisateur}, les moments bas arrivent à tout le monde. Mais souviens-toi : chaque difficulté est une opportunité de devenir plus fort ! Relève la tête, je crois en toi ! 🚀💪"
+    
+    elif any(word in message for word in ["stress", "angoiss", "peur", "inquiet"]):
+        return f"🦊 Le stress, c'est ton corps qui se prépare à performer, {prenom_utilisateur} ! Canalise cette énergie. Fais une liste, priorise, et attaque le plus important. Tu vas gérer, j'en suis sûr ! 🔥🎯"
+    
+    elif any(word in message for word in ["fatigu", "épuis", "plus d'énergie"]):
+        return f"🦊 La fatigue est un signal, {prenom_utilisateur}. Écoute-toi. Une bonne nuit de sommeil ou une micro-sieste peut tout changer. Et demain, tu seras encore plus fort ! 💤✨"
+    
+    elif any(word in message for word in ["amour", "cœur", "sentiment", "aimer"]):
+        return f"🦊 L'amour est une force incroyable, {prenom_utilisateur}. N'aie pas peur d'aimer pleinement. Les plus grandes réussites viennent du cœur. Lance-toi, tu ne le regretteras pas ! ❤️✨"
+    
+    elif any(word in message for word in ["travail", "boulot", "job", "colleg", "patron", "projet"]):
+        return f"🦊 Le travail, c'est le terrain de jeu des battants, {prenom_utilisateur} ! Organise-toi, fixe-toi des petits objectifs, et célèbre chaque victoire. Tu es plus capable que tu ne le penses ! 🏆💼"
+    
+    elif any(word in message for word in ["merci", "gentil", "sympa"]):
+        return f"🦊 C'est tout naturel, {prenom_utilisateur} ! Je suis là pour te booster. Ensemble, on va aller loin ! 🤘🎉"
+    
+    elif any(word in message for word in ["bonjour", "salut", "coucou", "hello"]):
+        reponses_salut = [
+            f"🦊 Salut {prenom_utilisateur} ! Prêt·e à déchirer ta journée ? ☀️💥",
+            f"🦊 Hé {prenom_utilisateur} ! Lève-toi et brille, aujourd'hui est un nouveau terrain de jeu ! 🚀",
+            f"🦊 Bien le bonjour {prenom_utilisateur} ! On attaque ça comment aujourd'hui ? 🎯"
+        ]
+        return random.choice(reponses_salut)
+    
+    else:
+        reponses_generiques = [
+            f"🦊 Je t'écoute, {prenom_utilisateur}. Dis-moi ce qui te motive ou te freine, et on va avancer ensemble ! 💬🔥",
+            f"🦊 Parle-moi, {prenom_utilisateur}. Je suis ton conseiller, ta caisse de résonance. Ensemble on va trouver des solutions ! 🧠🚀",
+            f"🦊 Continue, {prenom_utilisateur}. Je sens que tu as des choses à dire, et je suis là pour ça ! 🤘💬"
+        ]
+        return random.choice(reponses_generiques)
 
-personne = st.radio(
-    "Qui veux-tu consulter aujourd'hui ?",
-    ("🐱 Coco", "🦊 Steven"),
-    horizontal=True
-)
+# ========== INITIALISATION DE LA SESSION ==========
+if 'historique_chat' not in st.session_state:
+    st.session_state.historique_chat = []
+if 'prenom_utilisateur' not in st.session_state:
+    st.session_state.prenom_utilisateur = ""
 
-nom = "Coco" if "Coco" in personne else "Steven"
-
-# Phrase de présentation
-if nom == "Coco":
-    presentation = "🌸 **Coco** - Ta partenaire bien-être et pensée positive 🌸\n\n*Je suis là pour illuminer tes journées avec douceur et bienveillance. Ma mission : t'aider à voir la vie du bon côté !*"
-    question = f"Alors {nom}, as-tu besoin de belles pensées positives aujourd'hui ?"
-else:
-    presentation = "🦊 **Steven** - Ton conseiller en développement personnel 🦊\n\n*Je t'accompagne pour cultiver la confiance, la force intérieure et l'optimisme. Ensemble, on va aller loin !*"
-    question = f"Alors {nom}, es-tu prêt·e à recevoir une dose de motivation ?"
-
-st.info(presentation, icon="💫")
-st.write(f"**{question}**")
-
-# Sélecteur de catégorie
-categorie = st.selectbox(
-    "Choisis une catégorie :",
-    ["💪 Motivation", "😌 Calme", "❤️ Amour", "🌟 Confiance", "🎉 Joie"]
-)
-
-# ========== NOUVEAU : CURSEUR POUR LE NOMBRE DE MESSAGES ==========
-nombre_messages = st.slider(
-    "Combien de pensées veux-tu recevoir ?",
-    min_value=1,
-    max_value=5,
-    value=1,
-    step=1,
-    help="Choisis entre 1 et 5 pensées positives"
-)
-
-# ========== MESSAGES PAR CATÉGORIE ==========
-
-messages_motivation = [
-    "Tu es plus fort·e que tu ne le penses ! 💪",
-    "Chaque petit pas compte, continue comme ça 🚀",
-    "Les difficultés d'aujourd'hui sont les forces de demain",
-    "N'abandonne pas, la meilleure version de toi est en chemin",
-    "Ce que tu fais aujourd'hui peut changer demain ✨",
-    "La persévérance est la clé du succès 🔑",
-    "Crois en toi, même quand personne d'autre ne le fait 🌟"
-]
-
-messages_calme = [
-    "Respire profondément, tout va bien aller 🌬️",
-    "Accueille ce moment de calme comme un cadeau 🎁",
-    "Tu n'es pas obligé de tout contrôler. Lâche prise 🍃",
-    "Le silence est parfois la meilleure réponse 🤫",
-    "Prends une pause, tu l'as bien mérité 💆‍♀️",
-    "La paix intérieure commence par une seule respiration",
-    "Ralentir n'est pas un échec, c'est une sagesse 🦥"
-]
-
-messages_amour = [
-    "Tu es aimé·e plus que tu ne l'imagines ❤️",
-    "Ton cœur mérite toute la douceur du monde 🫶",
-    "L'amour que tu donnes revient toujours vers toi",
-    "Sois tendre avec toi-même aujourd'hui 💝",
-    "Tu es digne d'amour, toujours, sans condition",
-    "Un petit geste d'amour peut tout changer 🌹",
-    "Aimer et être aimé, c'est la plus belle des forces"
-]
-
-messages_confiance = [
-    "Tu as tout ce qu'il faut en toi pour réussir 🌈",
-    "Fais confiance à ton instinct, il te guide bien 🧭",
-    "Les doutes sont normaux, mais ils ne te définissent pas",
-    "Tu as déjà surmonté des difficultés, tu peux recommencer 💪",
-    "La confiance naît de l'action. Lance-toi !",
-    "Tu es capable de choses que tu n'imagines même pas ✨",
-    "Regarde tout le chemin parcouru, sois fier·ère 🏆"
-]
-
-messages_joie = [
-    "Trouve une petite joie dans chaque instant présent 🎈",
-    "Rire est un super-pouvoir. Utilise-le aujourd'hui 😂",
-    "La joie est contagieuse, partage-la autour de toi 🎉",
-    "Danse comme si personne ne regardait 💃",
-    "Un sourire sincère peut illuminer ta journée ☀️",
-    "Fais quelque chose qui te rend heureux·se aujourd'hui 🍭",
-    "La vie est trop courte pour ne pas célébrer les petits bonheurs 🎊"
-]
-
-# Associer la catégorie aux messages
-if "Motivation" in categorie:
-    messages = messages_motivation
-    emoji_categorie = "💪"
-elif "Calme" in categorie:
-    messages = messages_calme
-    emoji_categorie = "😌"
-elif "Amour" in categorie:
-    messages = messages_amour
-    emoji_categorie = "❤️"
-elif "Confiance" in categorie:
-    messages = messages_confiance
-    emoji_categorie = "🌟"
-else:
-    messages = messages_joie
-    emoji_categorie = "🎉"
-
-emoji_personnage = "🌸" if nom == "Coco" else "🦊"
-
-# Variable pour stocker les messages
-if 'dernier_message' not in st.session_state:
-    st.session_state.dernier_message = ""
-if 'derniers_messages' not in st.session_state:
-    st.session_state.derniers_messages = []
-
-# Bouton principal
-col1, col2 = st.columns([4, 1])
+# ========== AFFICHAGE PRINCIPAL ==========
+col1, col2 = st.columns([1, 1])
 
 with col1:
+    st.title("✨ Pensée Positive ✨")
+    st.caption(f"📅 {date_formatee}")
+    
+    # Sélecteur de personnage
+    personne = st.radio(
+        "Qui veux-tu consulter aujourd'hui ?",
+        ("🐱 Coco", "🦊 Steven"),
+        horizontal=True
+    )
+    
+    nom = "Coco" if "Coco" in personne else "Steven"
+    
+    # Phrase de présentation
+    if nom == "Coco":
+        presentation = "🌸 **Coco** - Ta partenaire bien-être 🌸\n\n*Je suis là pour écouter ton cœur et t'apporter douceur et réconfort.*"
+        question = f"Alors, comment te sens-tu aujourd'hui, {st.session_state.prenom_utilisateur or 'mon ami·e'} ?"
+    else:
+        presentation = "🦊 **Steven** - Ton coach motivation 🦊\n\n*Je suis là pour te booster, te motiver et t'accompagner vers le meilleur de toi-même !*"
+        question = f"Prêt·e à déchirer, {st.session_state.prenom_utilisateur or 'mon champion·ne'} ?"
+    
+    st.info(presentation, icon="💫")
+    
+    # Demander le prénom si pas encore fait
+    if st.session_state.prenom_utilisateur == "":
+        prenom_input = st.text_input("Comment t'appelles-tu ? (Coco/Steven veulent savoir !)")
+        if prenom_input:
+            st.session_state.prenom_utilisateur = prenom_input
+            st.rerun()
+    
+    # Sélecteur de catégorie
+    categorie = st.selectbox(
+        "Choisis une catégorie pour tes pensées :",
+        ["💪 Motivation", "😌 Calme", "❤️ Amour", "🌟 Confiance", "🎉 Joie"]
+    )
+    
+    # Curseur pour le nombre de messages
+    nombre_messages = st.slider(
+        "Combien de pensées veux-tu recevoir ?",
+        min_value=1, max_value=5, value=1, step=1
+    )
+    
+    # ========== MESSAGES PAR CATÉGORIE (version simplifiée) ==========
+    messages_base = {
+        "💪 Motivation": ["Tu es plus fort·e que tu ne le penses ! 💪", "Chaque petit pas compte 🚀", "Continue, tu gères ! ✨"],
+        "😌 Calme": ["Respire profondément, tout va bien 🌬️", "Lâche prise, tu as fait assez 🍃", "Le calme est ta force 🧘"],
+        "❤️ Amour": ["Tu es aimé·e plus que tu ne l'imagines ❤️", "Sois tendre avec toi-même 💝", "L'amour que tu donnes revient toujours 🌹"],
+        "🌟 Confiance": ["Crois en toi 🌈", "Tu es capable de grandes choses ✨", "Fais confiance à ton instinct 🧭"],
+        "🎉 Joie": ["Rire est un super-pouvoir 😂", "Trouve la joie dans les petits moments 🎈", "Fais ce qui te rend heureux·se 🍭"]
+    }
+    
+    messages = messages_base[categorie]
+    emoji_categorie = categorie.split()[0]
+    emoji_personnage = "🌸" if nom == "Coco" else "🦊"
+    
+    # Bouton pour recevoir des pensées
     if st.button("✨ Recevoir mes pensées ✨", type="primary", use_container_width=True):
-        # Générer plusieurs messages sans répétition
         messages_choisis = random.sample(messages, min(nombre_messages, len(messages)))
-        st.session_state.derniers_messages = messages_choisis
-        
         maintenant = datetime.now().strftime("%H:%M:%S")
         
-        # Afficher tous les messages
         st.success(f"📨 {nom} t'a préparé {len(messages_choisis)} pensée(s) positive(s) !", icon="✨")
-        
         for i, msg in enumerate(messages_choisis, 1):
             st.info(f"{emoji_personnage} **Pensée {i}** : {msg}", icon=emoji_categorie)
-        
         st.caption(f"💫 Délivré à {maintenant}")
+
+# ========== ZONE DE CHAT (COLONNE DE DROITE) ==========
+with col2:
+    st.markdown("### 💬 Discussion avec " + nom)
+    
+    # Afficher l'historique du chat
+    chat_container = st.container(height=400)
+    with chat_container:
+        for message in st.session_state.historique_chat:
+            if message["role"] == "user":
+                st.markdown(f"🧑 **Moi** : {message['content']}")
+            else:
+                emoji = "🌸" if message["personnage"] == "Coco" else "🦊"
+                st.markdown(f"{emoji} **{message['personnage']}** : {message['content']}")
+    
+    # Zone de saisie et envoi
+    if st.session_state.prenom_utilisateur:
+        user_input = st.text_area("💬 Écris ton message...", key="chat_input", height=100)
         
-        # Préparer le texte pour le copier
-        texte_a_copier = f"✨ Pensées positives de {nom} ✨\n\n"
-        for i, msg in enumerate(messages_choisis, 1):
-            texte_a_copier += f"{i}. {msg}\n"
-        st.session_state.dernier_message = texte_a_copier
+        if st.button("📤 Envoyer", use_container_width=True):
+            if user_input.strip():
+                # Ajouter le message de l'utilisateur
+                st.session_state.historique_chat.append({
+                    "role": "user",
+                    "content": user_input
+                })
+                
+                # Générer la réponse selon le personnage
+                if nom == "Coco":
+                    reponse = reponse_coco(user_input, st.session_state.prenom_utilisateur)
+                else:
+                    reponse = reponse_steven(user_input, st.session_state.prenom_utilisateur)
+                
+                # Ajouter la réponse du personnage
+                st.session_state.historique_chat.append({
+                    "role": "assistant",
+                    "personnage": nom,
+                    "content": reponse
+                })
+                
+                st.rerun()
+    else:
+        st.info("👋 Dis-nous ton prénom dans la colonne de gauche pour commencer à discuter avec " + nom + " !")
 
-# Bouton copier
-if st.session_state.dernier_message:
-    with col2:
-        if st.button("📋 Copier tout", help="Copier toutes les pensées dans le presse-papier"):
-            st.toast("✅ Toutes les pensées ont été copiées ! 💌", icon="🎉")
-
-# Petit footer
+# Petit footer en bas de page
 st.divider()
 st.markdown("*Prends soin de toi, chaque jour est un cadeau ✨*")
