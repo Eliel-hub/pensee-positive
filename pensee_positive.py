@@ -9,6 +9,130 @@ st.set_page_config(
     layout="wide"
 )
 
+# ========== CSS POUR LE CHAT MODERNE ==========
+st.markdown("""
+<style>
+    /* Style général du chat */
+    .chat-container {
+        background-color: #f0f2f6;
+        border-radius: 20px;
+        padding: 20px;
+        min-height: 500px;
+        max-height: 550px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    
+    /* Message utilisateur (à droite) */
+    .user-message {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 25px;
+        border-bottom-right-radius: 5px;
+        max-width: 70%;
+        margin-left: auto;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+    
+    /* Message assistant (à gauche) */
+    .assistant-message {
+        background: white;
+        color: #1a1a2e;
+        padding: 12px 18px;
+        border-radius: 25px;
+        border-bottom-left-radius: 5px;
+        max-width: 70%;
+        margin-right: auto;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-size: 14px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    /* Conteneur pour chaque message avec avatar */
+    .message-wrapper {
+        display: flex;
+        margin-bottom: 15px;
+        align-items: flex-start;
+    }
+    
+    .user-wrapper {
+        justify-content: flex-end;
+    }
+    
+    .assistant-wrapper {
+        justify-content: flex-start;
+    }
+    
+    /* Avatar */
+    .avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+    
+    .user-avatar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin-left: 10px;
+        margin-right: 0;
+    }
+    
+    .assistant-avatar {
+        background: #ffffff;
+        border: 2px solid #e0e0e0;
+        margin-right: 10px;
+    }
+    
+    /* Heure du message */
+    .message-time {
+        font-size: 10px;
+        color: #666;
+        margin-top: 4px;
+        text-align: right;
+    }
+    
+    .assistant-time {
+        text-align: left;
+    }
+    
+    /* Contenu du message */
+    .message-content {
+        max-width: 70%;
+    }
+    
+    /* Zone de saisie stylisée */
+    .input-area {
+        background: white;
+        border-radius: 30px;
+        padding: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    /* Animation d'apparition */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ========== DATE EN FRANÇAIS ==========
 jours_fr = {
     "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi",
@@ -31,11 +155,10 @@ annee = aujourdhui.year
 
 date_formatee = f"{jour_semaine} {jour} {mois} {annee}"
 
-# ========== FONCTIONS DE RÉPONSE POUR LE CHAT ==========
+# ========== FONCTIONS DE RÉPONSE ==========
 def reponse_coco(message, prenom_utilisateur):
     message = message.lower()
     
-    # Mots-clés et réponses de Coco (douce, bienveillante)
     if any(word in message for word in ["triste", "déprime", "ça va pas", "mal", "pleure"]):
         return f"🌸 Oh {prenom_utilisateur}, je suis désolée que tu te sentes comme ça. Je suis là pour toi. N'oublie pas que les moments difficiles passent toujours. Veux-tu qu'on trouve ensemble quelque chose qui pourrait te réconforter ? 💝"
     
@@ -73,7 +196,6 @@ def reponse_coco(message, prenom_utilisateur):
 def reponse_steven(message, prenom_utilisateur):
     message = message.lower()
     
-    # Mots-clés et réponses de Steven (motivant, énergique)
     if any(word in message for word in ["triste", "déprime", "ça va pas", "mal", "pleure"]):
         return f"🦊 Hé {prenom_utilisateur}, les moments bas arrivent à tout le monde. Mais souviens-toi : chaque difficulté est une opportunité de devenir plus fort ! Relève la tête, je crois en toi ! 🚀💪"
     
@@ -108,20 +230,54 @@ def reponse_steven(message, prenom_utilisateur):
         ]
         return random.choice(reponses_generiques)
 
-# ========== INITIALISATION DE LA SESSION ==========
+# ========== FONCTION POUR AFFICHER UN MESSAGE STYLISÉ ==========
+def afficher_message(role, contenu, personnage=None, heure=None):
+    if heure is None:
+        heure = datetime.now().strftime("%H:%M")
+    
+    if role == "user":
+        avatar = "👤"
+        wrapper_class = "user-wrapper"
+        message_class = "user-message"
+        avatar_class = "user-avatar"
+        time_class = "message-time"
+    else:
+        avatar = "🌸" if personnage == "Coco" else "🦊"
+        wrapper_class = "assistant-wrapper"
+        message_class = "assistant-message"
+        avatar_class = "assistant-avatar"
+        time_class = "message-time assistant-time"
+    
+    html = f"""
+    <div class="message-wrapper {wrapper_class} fade-in">
+        <div class="avatar {avatar_class}">
+            {avatar}
+        </div>
+        <div class="message-content">
+            <div class="{message_class}">
+                {contenu}
+            </div>
+            <div class="{time_class}">
+                {heure}
+            </div>
+        </div>
+    </div>
+    """
+    return html
+
+# ========== INITIALISATION ==========
 if 'historique_chat' not in st.session_state:
     st.session_state.historique_chat = []
 if 'prenom_utilisateur' not in st.session_state:
     st.session_state.prenom_utilisateur = ""
 
 # ========== AFFICHAGE PRINCIPAL ==========
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns([1, 1.2])
 
 with col1:
     st.title("✨ Pensée Positive ✨")
     st.caption(f"📅 {date_formatee}")
     
-    # Sélecteur de personnage
     personne = st.radio(
         "Qui veux-tu consulter aujourd'hui ?",
         ("🐱 Coco", "🦊 Steven"),
@@ -130,101 +286,116 @@ with col1:
     
     nom = "Coco" if "Coco" in personne else "Steven"
     
-    # Phrase de présentation
     if nom == "Coco":
         presentation = "🌸 **Coco** - Ta partenaire bien-être 🌸\n\n*Je suis là pour écouter ton cœur et t'apporter douceur et réconfort.*"
-        question = f"Alors, comment te sens-tu aujourd'hui, {st.session_state.prenom_utilisateur or 'mon ami·e'} ?"
     else:
         presentation = "🦊 **Steven** - Ton coach motivation 🦊\n\n*Je suis là pour te booster, te motiver et t'accompagner vers le meilleur de toi-même !*"
-        question = f"Prêt·e à déchirer, {st.session_state.prenom_utilisateur or 'mon champion·ne'} ?"
     
     st.info(presentation, icon="💫")
     
-    # Demander le prénom si pas encore fait
     if st.session_state.prenom_utilisateur == "":
         prenom_input = st.text_input("Comment t'appelles-tu ? (Coco/Steven veulent savoir !)")
         if prenom_input:
             st.session_state.prenom_utilisateur = prenom_input
             st.rerun()
-    
-    # Sélecteur de catégorie
-    categorie = st.selectbox(
-        "Choisis une catégorie pour tes pensées :",
-        ["💪 Motivation", "😌 Calme", "❤️ Amour", "🌟 Confiance", "🎉 Joie"]
-    )
-    
-    # Curseur pour le nombre de messages
-    nombre_messages = st.slider(
-        "Combien de pensées veux-tu recevoir ?",
-        min_value=1, max_value=5, value=1, step=1
-    )
-    
-    # ========== MESSAGES PAR CATÉGORIE (version simplifiée) ==========
-    messages_base = {
-        "💪 Motivation": ["Tu es plus fort·e que tu ne le penses ! 💪", "Chaque petit pas compte 🚀", "Continue, tu gères ! ✨"],
-        "😌 Calme": ["Respire profondément, tout va bien 🌬️", "Lâche prise, tu as fait assez 🍃", "Le calme est ta force 🧘"],
-        "❤️ Amour": ["Tu es aimé·e plus que tu ne l'imagines ❤️", "Sois tendre avec toi-même 💝", "L'amour que tu donnes revient toujours 🌹"],
-        "🌟 Confiance": ["Crois en toi 🌈", "Tu es capable de grandes choses ✨", "Fais confiance à ton instinct 🧭"],
-        "🎉 Joie": ["Rire est un super-pouvoir 😂", "Trouve la joie dans les petits moments 🎈", "Fais ce qui te rend heureux·se 🍭"]
-    }
-    
-    messages = messages_base[categorie]
-    emoji_categorie = categorie.split()[0]
-    emoji_personnage = "🌸" if nom == "Coco" else "🦊"
-    
-    # Bouton pour recevoir des pensées
-    if st.button("✨ Recevoir mes pensées ✨", type="primary", use_container_width=True):
-        messages_choisis = random.sample(messages, min(nombre_messages, len(messages)))
-        maintenant = datetime.now().strftime("%H:%M:%S")
-        
-        st.success(f"📨 {nom} t'a préparé {len(messages_choisis)} pensée(s) positive(s) !", icon="✨")
-        for i, msg in enumerate(messages_choisis, 1):
-            st.info(f"{emoji_personnage} **Pensée {i}** : {msg}", icon=emoji_categorie)
-        st.caption(f"💫 Délivré à {maintenant}")
-
-# ========== ZONE DE CHAT (COLONNE DE DROITE) ==========
-with col2:
-    st.markdown("### 💬 Discussion avec " + nom)
-    
-    # Afficher l'historique du chat
-    chat_container = st.container(height=400)
-    with chat_container:
-        for message in st.session_state.historique_chat:
-            if message["role"] == "user":
-                st.markdown(f"🧑 **Moi** : {message['content']}")
-            else:
-                emoji = "🌸" if message["personnage"] == "Coco" else "🦊"
-                st.markdown(f"{emoji} **{message['personnage']}** : {message['content']}")
-    
-    # Zone de saisie et envoi
-    if st.session_state.prenom_utilisateur:
-        user_input = st.text_area("💬 Écris ton message...", key="chat_input", height=100)
-        
-        if st.button("📤 Envoyer", use_container_width=True):
-            if user_input.strip():
-                # Ajouter le message de l'utilisateur
-                st.session_state.historique_chat.append({
-                    "role": "user",
-                    "content": user_input
-                })
-                
-                # Générer la réponse selon le personnage
-                if nom == "Coco":
-                    reponse = reponse_coco(user_input, st.session_state.prenom_utilisateur)
-                else:
-                    reponse = reponse_steven(user_input, st.session_state.prenom_utilisateur)
-                
-                # Ajouter la réponse du personnage
-                st.session_state.historique_chat.append({
-                    "role": "assistant",
-                    "personnage": nom,
-                    "content": reponse
-                })
-                
-                st.rerun()
     else:
-        st.info("👋 Dis-nous ton prénom dans la colonne de gauche pour commencer à discuter avec " + nom + " !")
+        st.success(f"✨ Content de te voir, {st.session_state.prenom_utilisateur} ! ✨")
+        
+        # Sélecteur de catégorie
+        categorie = st.selectbox(
+            "Choisis une catégorie pour tes pensées :",
+            ["💪 Motivation", "😌 Calme", "❤️ Amour", "🌟 Confiance", "🎉 Joie"]
+        )
+        
+        nombre_messages = st.slider(
+            "Combien de pensées veux-tu recevoir ?",
+            min_value=1, max_value=5, value=1, step=1
+        )
+        
+        messages_base = {
+            "💪 Motivation": ["Tu es plus fort·e que tu ne le penses ! 💪", "Chaque petit pas compte 🚀", "Continue, tu gères ! ✨"],
+            "😌 Calme": ["Respire profondément, tout va bien 🌬️", "Lâche prise, tu as fait assez 🍃", "Le calme est ta force 🧘"],
+            "❤️ Amour": ["Tu es aimé·e plus que tu ne l'imagines ❤️", "Sois tendre avec toi-même 💝", "L'amour que tu donnes revient toujours 🌹"],
+            "🌟 Confiance": ["Crois en toi 🌈", "Tu es capable de grandes choses ✨", "Fais confiance à ton instinct 🧭"],
+            "🎉 Joie": ["Rire est un super-pouvoir 😂", "Trouve la joie dans les petits moments 🎈", "Fais ce qui te rend heureux·se 🍭"]
+        }
+        
+        messages = messages_base[categorie]
+        emoji_categorie = categorie.split()[0]
+        emoji_personnage = "🌸" if nom == "Coco" else "🦊"
+        
+        if st.button("✨ Recevoir mes pensées ✨", type="primary", use_container_width=True):
+            messages_choisis = random.sample(messages, min(nombre_messages, len(messages)))
+            maintenant = datetime.now().strftime("%H:%M:%S")
+            
+            st.success(f"📨 {nom} t'a préparé {len(messages_choisis)} pensée(s) positive(s) !", icon="✨")
+            for i, msg in enumerate(messages_choisis, 1):
+                st.info(f"{emoji_personnage} **Pensée {i}** : {msg}", icon=emoji_categorie)
+            st.caption(f"💫 Délivré à {maintenant}")
 
-# Petit footer en bas de page
+# ========== ZONE DE CHAT STYLISÉE ==========
+with col2:
+    st.markdown(f"### 💬 Conversation avec {nom}")
+    
+    # Conteneur du chat avec hauteur fixe et scroll
+    chat_html = '<div class="chat-container" id="chat-container">'
+    
+    # Afficher les messages existants
+    for msg in st.session_state.historique_chat:
+        if msg["role"] == "user":
+            chat_html += afficher_message("user", msg["content"])
+        else:
+            heure = msg.get("heure", datetime.now().strftime("%H:%M"))
+            chat_html += afficher_message("assistant", msg["content"], msg["personnage"], heure)
+    
+    chat_html += '</div>'
+    
+    # JavaScript pour scroller automatiquement en bas
+    chat_html += """
+    <script>
+        var container = document.getElementById('chat-container');
+        if(container) container.scrollTop = container.scrollHeight;
+    </script>
+    """
+    
+    st.markdown(chat_html, unsafe_allow_html=True)
+    
+    # Zone de saisie
+    if st.session_state.prenom_utilisateur:
+        col_input, col_send = st.columns([5, 1])
+        with col_input:
+            user_input = st.text_area("💬", placeholder="Écris ton message ici...", key="chat_input", height=80, label_visibility="collapsed")
+        with col_send:
+            st.write("")
+            st.write("")
+            envoyer = st.button("📤 Envoyer", use_container_width=True)
+        
+        if envoyer and user_input.strip():
+            # Ajouter message utilisateur
+            st.session_state.historique_chat.append({
+                "role": "user",
+                "content": user_input,
+                "heure": datetime.now().strftime("%H:%M")
+            })
+            
+            # Générer réponse
+            if nom == "Coco":
+                reponse = reponse_coco(user_input, st.session_state.prenom_utilisateur)
+            else:
+                reponse = reponse_steven(user_input, st.session_state.prenom_utilisateur)
+            
+            # Ajouter réponse assistant
+            st.session_state.historique_chat.append({
+                "role": "assistant",
+                "personnage": nom,
+                "content": reponse,
+                "heure": datetime.now().strftime("%H:%M")
+            })
+            
+            st.rerun()
+    else:
+        st.info("👋 Entre ton prénom dans la colonne de gauche pour commencer à discuter !")
+
+# Footer
 st.divider()
-st.markdown("*Prends soin de toi, chaque jour est un cadeau ✨*")
+st.markdown("*💬 Une discussion vaut mille pensées — Coco & Steven sont là pour toi*")
